@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Guessing Game</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            color: #555;
+        }
+
+        input {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 150px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+
+        #retry-btn, #logout-btn {
+            margin-top: 10px;
+        }
+
+        #result-message {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #D9534F;
+        }
+
+        .confetti {
+            display: none;
+            width: 100px;
+            height: 100px;
+            background: url('banana.gif') no-repeat;
+            background-size: cover;
+            animation: confetti 2s linear;
+        }
+
+        
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <!-- Login Form -->
+        <div id="login-form">
+            <h1>Login</h1>
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Enter your username">
+            <br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter your password">
+            <p><button onclick="login()">Login</button><p>
+        </div>
+       
+         <!-- Number Guessing Game -->
+        <div id="game" style="display: none;">
+            <h1>Number Guessing Game</h1>
+            <p>Guess a number between 1 and 10:</p>
+            <input type="text" id="user-guess" placeholder="Enter your guess">
+            <button onclick="checkGuess()">Submit Guess</button>
+            <p id="result-message"></p>
+            <p>Chances left: <span id="chances">3</span></p>
+            <button id="retry-btn" onclick="resetGame()" disabled>Retry</button>
+            <button id="logout-btn" onclick="logout()">Logout</button>
+            <div class="confetti"></div>
+        </div>
+
+        <script>
+            let isLoggedIn = false;
+
+            const validCredentials = [
+                { username: 'user1', password: 'pass1' },
+                { username: 'user2', password: 'pass2' },
+            ];
+
+            let correctNumber = Math.floor(Math.random() * 10) + 1;
+
+            let chancesLeft = 3;
+
+            function login() {
+                const enteredUsername = document.getElementById('username').value;
+                const enteredPassword = document.getElementById('password').value;
+
+                const isValidCredentials = validCredentials.some(cred => 
+                    cred.username === enteredUsername && cred.password === enteredPassword
+                );
+
+                if (isValidCredentials) {
+                    document.getElementById('login-form').style.display = 'none';
+                    document.getElementById('game').style.display = 'block';
+                    isLoggedIn = true;
+                } else {
+                    alert('Invalid credentials. Please enter correct username and password.');
+                }
+            }
+
+            function logout() {
+                document.getElementById('login-form').style.display = 'block';
+                document.getElementById('game').style.display = 'none';
+                isLoggedIn = false;
+            }
+
+        function checkGuess() {
+                if (!isLoggedIn) {
+                    alert('Please login to play the game.');
+                    return;
+                }
+
+                const userGuess = document.getElementById('user-guess').value;
+                const resultMessage = document.getElementById('result-message');
+                const chancesDisplay = document.getElementById('chances');
+                const retryBtn = document.getElementById('retry-btn');
+                const confetti = document.querySelector('.confetti');
+
+                if (isNaN(userGuess) || userGuess < 1 || userGuess > 10) {
+                    resultMessage.textContent = 'Please enter a valid number between 1 and 10.';
+                    return;
+                }
+
+                const guess = parseInt(userGuess);
+
+                if (guess === correctNumber) {
+                    resultMessage.textContent = 'Congratulations! You guessed the correct number.';
+                    resultMessage.style.color = '#4CAF50';
+                    retryBtn.disabled = false;
+
+                    confetti.style.display = 'block';
+
+                    setTimeout(() => {
+                        confetti.style.display = 'none';
+                    }, 2000);
+                } else {
+                    chancesLeft = Math.max(0, chancesLeft - 1);
+                    chancesDisplay.textContent = chancesLeft;
+                    
+                    if (chancesLeft === 0) {
+                        resultMessage.textContent = `Sorry, you ran out of chances. The correct number was ${correctNumber}.`;
+                        resultMessage.style.color = '#D9534F';
+                        retryBtn.disabled = false;
+                    } else {
+                        resultMessage.textContent = `Incorrect! The correct number is ${guess < correctNumber ? 'higher' : 'lower'}. Try again.`;
+                        resultMessage.style.color = '#D9534F';
+                    }
+                }
+            }
+
+            function resetGame() {
+                document.getElementById('user-guess').value = '';
+                document.getElementById('result-message').textContent = '';
+                document.getElementById('chances').textContent = '3';
+                document.getElementById('retry-btn').disabled = true;
+
+                correctNumber = Math.floor(Math.random() * 10) + 1;
+
+                chancesLeft = 3;
+            }
+        </script>
+    </div>
+
+</body>
+</html>
